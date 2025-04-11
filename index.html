@@ -1,0 +1,64 @@
+
+<!DOCTYPEhtml>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>WebGL Demo</title>
+    </head>
+    <body onload="InitWebGL();">
+        <canvas id="gl" width="800px" height="600px">
+        WebGL is not supported!
+        </canvas>
+
+        <!-- Write vertex shader here under! -->
+        <textarea id="vs" spellcheck="false">
+            precision mediump float;
+            attribute vec3 Pos;
+            attribute vec3 Color;
+            uniform vec4 Angle;
+            varying vec3 vertexColor;
+            void main() 
+            {
+                float coX = cos(Angle.x);
+                float siX = sin(Angle.x);
+                mat4 matX = mat4(vec4(1.0, 0.0, 0.0, 0.0),
+                                 vec4(0.0, coX, siX, 0.0),
+                                 vec4(0.0,-siX, coX, 0.0),
+                                 vec4(0.0, 0.0, 0.0, 1.0)
+                                 );
+                float coY = cos(Angle.y);
+                float siY = sin(Angle.y);
+                mat4 matY = mat4(vec4(coY, 0.0,-siY, 0.0),
+                                vec4(0.0, 1.0, 0.0, 0.0),
+                                vec4(siY, 0.0, coY, 0.0),
+                                vec4(0.0, 0.0, 0.0, 1.0));
+                gl_Position = matY * matX  *  vec4(Pos, 1.0);
+                vertexColor = Color;
+            } 
+        
+        </textarea>
+
+        <!-- Write fragment shader here under! -->
+        <textarea id="fs" spellcheck="false">
+            precision mediump float;
+            varying vec3 vertexColor;
+            void main()
+            {
+            gl_FragColor = vec4(vertexColor, 1.0);
+            }
+       
+        </textarea>
+
+        <select id="shape" onchange="InitShaders();">
+            <option selected>Triangle</option>
+            <option>Quad</option>
+            <option>Box</option>
+
+        </select>
+        
+        <div id="ui">Generate UI for geometry here!</div>
+        <script src="java-script/andenLektion.js" defer>
+        </script>
+        </body>
+</html>
+
