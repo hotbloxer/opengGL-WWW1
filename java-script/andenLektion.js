@@ -152,8 +152,15 @@ function CreateVBO(program, vert)
     // Create shader attribute: Color
     const o = 3 * Float32Array.BYTES_PER_ELEMENT;
     let c = gl.getAttribLocation(program, 'Color');
-    gl.vertexAttribPointer(c,3,gl.FLOAT,gl.FALSE,s,o);
+    gl.vertexAttribPointer(c, 3, gl.FLOAT, gl.FALSE, s, o);
     gl.enableVertexAttribArray(c);
+
+    // create shader uv
+    const o2 = o * 2;
+    let u = gl.getAttribLocation(program, 'UV');
+    gl.vertexAttribPointer(u, 2, gl.FLOAT, gl.FALSE, s, o2);
+    gl.enableVertexAttribArray(u);
+
 }
 
 
@@ -166,13 +173,13 @@ var gl= document.getElementById('gl')
                 .getContext('experimental-webgl');
 
 
-function AddVertex(x, y, z, r, g, b)
+function AddVertex(x, y, z, r, g, b, u, v)
 {   
     // get index denne vertecy fylder
     const index = vertices.length;
 
     // udvid array med længden af en vertecy
-    vertices.length+= 6;
+    vertices.length+= 8;
 
     // sæt værdien af vertecies
     vertices[index + 0] = x;
@@ -181,6 +188,8 @@ function AddVertex(x, y, z, r, g, b)
     vertices[index + 3] = r;
     vertices[index + 4] = g;
     vertices[index + 5] = b;
+    vertices[index + 6] = u;
+    vertices[index + 7] = v;
 }
 
 
@@ -190,22 +199,22 @@ function CreateTriangle(width, height)
     vertices.length= 0;
     const w = width * 0.5;
     const h = height * 0.5;
-    AddTriangle(    0.0,  h, 0.0, 1.0, 0.0, 0.0,
-                     -w, -h, 0.0, 0.0, 1.0, 0.0,
-                      w, -h, 0.0, 0.0, 0.0, 1.0);
+    AddTriangle(    0.0,  h, 0.0, 1.0, 0.0, 0.0, 0.5, 1.0,
+                     -w, -h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                      w, -h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0);
 }
 
 function AddTriangle(
     // input kanter i trekant
-    x1, y1, z1, r1, g1, b1,
-    x2, y2, z2, r2, g2, b2,
-    x3, y3, z3, r3, g3, b3)
+    x1, y1, z1, r1, g1, b1, u1, v1,
+    x2, y2, z2, r2, g2, b2, u2, v2,
+    x3, y3, z3, r3, g3, b3, u3, v3)
 
 {
     // tilføj vertecies til functionen
-    AddVertex(x1, y1, z1, r1, g1, b1);
-    AddVertex(x2, y2, z2, r2, g2, b2);
-    AddVertex(x3, y3, z3, r3, g3, b3); 
+    AddVertex(x1, y1, z1, r1, g1, b1, u1, v1);
+    AddVertex(x2, y2, z2, r2, g2, b2, u2, v2);
+    AddVertex(x3, y3, z3, r3, g3, b3, u3, v3); 
 }
 
              
@@ -215,28 +224,28 @@ function CreateQuad(width, height)
     vertices.length= 0;
     const w = width * 0.5;
     const h = height * 0.5;
-    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0,
-            -w,-h, 0.0, 0.0, 1.0, 0.0,
-             w,-h, 0.0, 0.0, 0.0, 1.0,
-             w, h, 0.0, 1.0, 1.0, 0.0);
+    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0
+            -w,-h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+             w,-h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+             w, h, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0);
 }
 
 
 function AddQuad(
-    x1, y1, z1, r1, g1, b1,
-    x2, y2, z2, r2, g2, b2,
-    x3, y3, z3, r3, g3, b3,
-    x4, y4, z4, r4, g4, b4)
+    x1, y1, z1, r1, g1, b1, u1, v1,
+    x2, y2, z2, r2, g2, b2, u2, v2,
+    x3, y3, z3, r3, g3, b3, u3, v3,
+    x4, y4, z4, r4, g4, b4, u4, v4)
 {
     AddTriangle(
-        x1, y1, z1, r1, g1, b1,
-        x2, y2, z2, r2, g2, b2,
-        x3, y3, z3, r3, g3, b3);
+        x1, y1, z1, r1, g1, b1, u1, v1,
+        x2, y2, z2, r2, g2, b2, u2, v2,
+        x3, y3, z3, r3, g3, b3, u3, v3);
 
     AddTriangle(
-        x3, y3, z3, r3, g3, b3,
-        x4, y4, z4, r4, g4, b4,
-        x1, y1, z1, r1, g1, b1);
+        x3, y3, z3, r3, g3, b3, u3, v3,
+        x4, y4, z4, r4, g4, b4, u4, v4,
+        x1, y1, z1, r1, g1, b1, u1, v1);
 }
 
 
@@ -248,7 +257,7 @@ function CreateBox(width, height, depth)
     const d = depth * 0.5;
 
     //front
-    AddQuad(-w, h, -d, 1.0, 0.0, 0.0,
+    AddQuad(-w, h, -d, 1.0, 0.0, 0.0, 
             -w,-h, -d, 1.0, 0.0, 0.0,
              w,-h, -d, 1.0, 0.0, 0.0,
              w, h, -d, 1.0, 0.0, 0.0);
@@ -560,12 +569,81 @@ function CreateGeometryBuffers(program)
 
     // uniform shader inform
     angleGL= gl.getUniformLocation(program, 'Angle');
+    CreateTexture(program, 'images/tekstur.jpg')
 
     // Activate shader program
     gl.useProgram(program);
+
+    //update display options
+    gl.uniform4fv(displayGL, new Float32Array(display))
 
     // Display geometri on screen
     Render();
 }
 
+function CreateTexture (prog, url) {
+    // load tex to g-card
+    const texture = LoadTexture(url);
 
+    // flip y axis as pr norm
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    // activeate texture to tex unit 0
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // add unrfomr location to fragment shader
+    textureGL = gl.getUniformLocation(prog, 'Texture');
+
+    // add uniform location to fragment shader
+    displayGL = gl.getUniformLocation(prog, 'Display');
+}
+
+
+function LoadTexture(url) 
+{
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    const pixel = new Uint8Array([0, 0, 255, 255]);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    const image = new Image();
+    image.onload= () => 
+    {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        SetTextureFilters(image);
+    };
+
+    image.src= url;
+    return texture;
+}
+
+
+function SetTextureFilters(image)
+{
+    if (IsPow2(image.width) && IsPow2(image.height))
+    {
+        gl.generateMipmap(gl.TEXTURE_2D);
+    } else
+    {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+}
+
+function IsPow2(value)
+{
+    return(value & (value -1)) === 0;
+}
+
+function Update()
+{
+    // Show texture (boolean) last element
+    const t = document.getElementById('t');
+    display[3] = t.checked? 1.0 : 0.0;
+
+    // Update array to graphics card and render 
+    gl.uniform4fv(displayGL, new Float32Array(display));
+    Render();
+}

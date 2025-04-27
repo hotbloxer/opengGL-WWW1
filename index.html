@@ -15,8 +15,10 @@
             precision mediump float;
             attribute vec3 Pos;
             attribute vec3 Color;
+            attribute vec2 UV;
             uniform vec4 Angle;
             varying vec3 vertexColor;
+            varying vec2 uv;
             void main() 
             {
                 float coX = cos(Angle.x);
@@ -34,6 +36,7 @@
                                 vec4(0.0, 0.0, 0.0, 1.0));
                 gl_Position = matY * matX  *  vec4(Pos, 1.0);
                 vertexColor = Color;
+                uv = UV;
             } 
         
         </textarea>
@@ -41,10 +44,17 @@
         <!-- Write fragment shader here under! -->
         <textarea id="fs" spellcheck="false">
             precision mediump float;
+            uniform sampler2D Texture;
+            uniform vec4 Display;
             varying vec3 vertexColor;
-            void main()
+            varying vec2 uv;
+            
+            void main() 
             {
-            gl_FragColor = vec4(vertexColor, 1.0);
+                float p = abs(Display.w);
+                vec3 texture = texture2D(Texture, uv).rgb;
+                vec3 color = vertexColor;
+                gl_FragColor = vec4(mix(color, texture, p), 1.0);
             }
        
         </textarea>
@@ -55,6 +65,12 @@
             <option>Box</option>
 
         </select>
+
+
+        <input type="checkbox" id="t" onchange="Update();">
+        Show Texture<br>
+
+
         
         <div id="ui">Generate UI for geometry here!</div>
         <script src="java-script/andenLektion.js" defer>
