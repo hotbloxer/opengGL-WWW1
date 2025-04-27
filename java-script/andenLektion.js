@@ -179,7 +179,7 @@ function AddVertex(x, y, z, r, g, b, u, v)
     const index = vertices.length;
 
     // udvid array med længden af en vertecy
-    vertices.length+= 8;
+    vertices.length += 8;
 
     // sæt værdien af vertecies
     vertices[index + 0] = x;
@@ -196,7 +196,7 @@ function AddVertex(x, y, z, r, g, b, u, v)
 
 function CreateTriangle(width, height)
 {
-    vertices.length= 0;
+    vertices.length = 0;
     const w = width * 0.5;
     const h = height * 0.5;
     AddTriangle(    0.0,  h, 0.0, 1.0, 0.0, 0.0, 0.5, 1.0,
@@ -251,7 +251,7 @@ function AddQuad(
 
 function CreateBox(width, height, depth)
 {
-    vertices.length= 0;
+    vertices.length = 0;
     const w = width * 0.5;
     const h = height * 0.5;
     const d = depth * 0.5;
@@ -547,14 +547,19 @@ function CreateGeometryUI()
     let e = document.getElementById('shape');
     switch(e.selectedIndex)
     {
+        case 0: 
+        CreateQuad(w, h);  
+        
+        break;
+
         case 1: CreateTriangle(w, h); 
             break;
-        case 0: 
-            //CreateQuad(w, h);  
-            CreateSubdividedBox(s,w,h,d) 
-            break;
+
         case 2: 
             CreateBox(w, h, d); 
+            break;
+        case 3:
+            CreateSubdividedBox(s,w,h,d);
             break;
         }
     }
