@@ -5,6 +5,9 @@ var gl= document.getElementById('gl').getContext('webgl')
 // Support Internet Explorer, Edge, 
 Safaridocument.getElementById('gl').getContext('experimental-webgl');
 
+var textureGL = 0;
+var display = [0.0, 0.0, 0.0, 0.0];
+var displayGL = 0;
 
 function InitWebGL()
 {
