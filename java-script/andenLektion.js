@@ -288,7 +288,7 @@ function CreateSubdividedBox (subdiv, width, height, depth)
     // if positive direction is chosen, the locked plane will be in the positive side
     // fx top, right or back
     // back is a special case though
-
+    vertices.length= 0;
     var white = false;
     var wc = 1.0;
 
