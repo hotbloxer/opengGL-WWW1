@@ -142,7 +142,7 @@ function CreateVBO(program, vert)
     let vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER,vert,gl.STATIC_DRAW);
-    const s = 6 * Float32Array.BYTES_PER_ELEMENT;
+    const s = 8 * Float32Array.BYTES_PER_ELEMENT;
 
     // Create shader attribute: Pos
     let p = gl.getAttribLocation(program, 'Pos');
@@ -224,7 +224,7 @@ function CreateQuad(width, height)
     vertices.length= 0;
     const w = width * 0.5;
     const h = height * 0.5;
-    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0
+    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
             -w,-h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
              w,-h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
              w, h, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0);
@@ -300,7 +300,7 @@ function CreateSubdividedBox (subdiv, width, height, depth)
     // if positive direction is chosen, the locked plane will be in the positive side
     // fx top, right or back
     // back is a special case though
-
+    vertices.length= 0;
     var white = false;
     var wc = 1.0;
 
@@ -574,7 +574,8 @@ function CreateGeometryBuffers(program)
 
     // uniform shader inform
     angleGL= gl.getUniformLocation(program, 'Angle');
-    CreateTexture(program, 'images/tekstur.jpg')
+    //CreateTexture(program, 'images/tekstur.jpg')
+    CreateTexture(program, 'images/testtex.jpg')
 
     // Activate shader program
     gl.useProgram(program);
