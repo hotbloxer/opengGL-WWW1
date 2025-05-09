@@ -6,8 +6,32 @@ var gl= document.getElementById('gl').getContext('webgl')
 Safaridocument.getElementById('gl').getContext('experimental-webgl');
 
 var textureGL = 0;
-var display = [0.0, 0.0, 0.0, 0.0];
+var display = [1.0, 1.0, 1.0, 1.0];
 var displayGL = 0;
+
+//var matY;
+//var matX;
+
+proGL= 0; 
+// Projection Matrix
+ var projection= [ 
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0
+    ];
+
+var modGL= 0; // Uniform Location
+
+
+// Model View Matrix
+var modelView= [ 
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0,-1.2, 1.0 
+    ];
+
 
 function InitWebGL()
 {
@@ -142,7 +166,7 @@ function CreateVBO(program, vert)
     let vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER,vert,gl.STATIC_DRAW);
-    const s = 8 * Float32Array.BYTES_PER_ELEMENT;
+    const s = 11 * Float32Array.BYTES_PER_ELEMENT;
 
     // Create shader attribute: Pos
     let p = gl.getAttribLocation(program, 'Pos');
@@ -156,10 +180,16 @@ function CreateVBO(program, vert)
     gl.enableVertexAttribArray(c);
 
     // create shader uv
-    const o2 = o * 2;
+    const o2 = 6 * Float32Array.BYTES_PER_ELEMENT;
     let u = gl.getAttribLocation(program, 'UV');
     gl.vertexAttribPointer(u, 2, gl.FLOAT, gl.FALSE, s, o2);
     gl.enableVertexAttribArray(u);
+
+    // create shader normals
+    const o3 = 8 * Float32Array.BYTES_PER_ELEMENT;
+    let n = gl.getAttribLocation(program, 'Normal');
+    gl.vertexAttribPointer(n, 3, gl.FLOAT, gl.FALSE, s, o3);
+    gl.enableVertexAttribArray(n);
 
 }
 
@@ -173,13 +203,13 @@ var gl= document.getElementById('gl')
                 .getContext('experimental-webgl');
 
 
-function AddVertex(x, y, z, r, g, b, u, v)
+function AddVertex(x, y, z, r, g, b, u, v, nx, ny, nz)
 {   
     // get index denne vertecy fylder
     const index = vertices.length;
 
     // udvid array med længden af en vertecy
-    vertices.length += 8;
+    vertices.length += 11;
 
     // sæt værdien af vertecies
     vertices[index + 0] = x;
@@ -190,6 +220,9 @@ function AddVertex(x, y, z, r, g, b, u, v)
     vertices[index + 5] = b;
     vertices[index + 6] = u;
     vertices[index + 7] = v;
+    vertices[index + 8] = nx;
+    vertices[index + 9] = ny;
+    vertices[index + 10] = nz;
 }
 
 
@@ -199,22 +232,22 @@ function CreateTriangle(width, height)
     vertices.length = 0;
     const w = width * 0.5;
     const h = height * 0.5;
-    AddTriangle(    0.0,  h, 0.0, 1.0, 0.0, 0.0, 0.5, 1.0,
-                     -w, -h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-                      w, -h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0);
+    AddTriangle(    0.0,  h, 0.0, 1.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0, -1.0,
+                     -w, -h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+                      w, -h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0);
 }
 
 function AddTriangle(
     // input kanter i trekant
-    x1, y1, z1, r1, g1, b1, u1, v1,
-    x2, y2, z2, r2, g2, b2, u2, v2,
-    x3, y3, z3, r3, g3, b3, u3, v3)
+    x1, y1, z1, r1, g1, b1, u1, v1, nx1, ny1, nz1,
+    x2, y2, z2, r2, g2, b2, u2, v2, nx2, ny2, nz2,
+    x3, y3, z3, r3, g3, b3, u3, v3, nx3, ny3, nz3)
 
 {
     // tilføj vertecies til functionen
-    AddVertex(x1, y1, z1, r1, g1, b1, u1, v1);
-    AddVertex(x2, y2, z2, r2, g2, b2, u2, v2);
-    AddVertex(x3, y3, z3, r3, g3, b3, u3, v3); 
+    AddVertex(x1, y1, z1, r1, g1, b1, u1, v1, nx1, ny1, nz1);
+    AddVertex(x2, y2, z2, r2, g2, b2, u2, v2, nx2, ny2, nz2);
+    AddVertex(x3, y3, z3, r3, g3, b3, u3, v3, nx3, ny3, nz3); 
 }
 
              
@@ -224,28 +257,28 @@ function CreateQuad(width, height)
     vertices.length= 0;
     const w = width * 0.5;
     const h = height * 0.5;
-    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-            -w,-h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-             w,-h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
-             w, h, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0);
+    AddQuad(-w, h, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+            -w,-h, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+             w,-h, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+             w, h, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0);
 }
 
 
 function AddQuad(
-    x1, y1, z1, r1, g1, b1, u1, v1,
-    x2, y2, z2, r2, g2, b2, u2, v2,
-    x3, y3, z3, r3, g3, b3, u3, v3,
-    x4, y4, z4, r4, g4, b4, u4, v4)
+    x1, y1, z1, r1, g1, b1, u1, v1, nx1, ny1, nz1, 
+    x2, y2, z2, r2, g2, b2, u2, v2, nx2, ny2, nz2,
+    x3, y3, z3, r3, g3, b3, u3, v3, nx3, ny3, nz3,
+    x4, y4, z4, r4, g4, b4, u4, v4, nx4, ny4, ny4)
 {
     AddTriangle(
-        x1, y1, z1, r1, g1, b1, u1, v1,
-        x2, y2, z2, r2, g2, b2, u2, v2,
-        x3, y3, z3, r3, g3, b3, u3, v3);
-
+        x1, y1, z1, r1, g1, b1, u1, v1, nx1, ny1, nz1,
+        x2, y2, z2, r2, g2, b2, u2, v2, nx2, ny2, nz2,
+        x3, y3, z3, r3, g3, b3, u3, v3, nx3, ny3, nz3);
+ 
     AddTriangle(
-        x3, y3, z3, r3, g3, b3, u3, v3,
-        x4, y4, z4, r4, g4, b4, u4, v4,
-        x1, y1, z1, r1, g1, b1, u1, v1);
+        x3, y3, z3, r3, g3, b3, u3, v3, nx3, ny3, nz3,
+        x4, y4, z4, r4, g4, b4, u4, v4, nx4, ny4, ny4,
+        x1, y1, z1, r1, g1, b1, u1, v1, nx1, ny1, nz1);
 }
 
 
@@ -257,39 +290,39 @@ function CreateBox(width, height, depth)
     const d = depth * 0.5;
 
     //front
-    AddQuad(-w, h, -d, 1.0, 0.0, 0.0, 
-            -w,-h, -d, 1.0, 0.0, 0.0,
-             w,-h, -d, 1.0, 0.0, 0.0,
-             w, h, -d, 1.0, 0.0, 0.0);
+    AddQuad(-w, h, -d, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+            -w,-h, -d, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+             w,-h, -d, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+             w, h, -d, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0 ); 
 
     //left
-    AddQuad(-w, h, d, 0.0, 1.0, 0.0,
-            -w,-h, d, 0.0, 1.0, 0.0,
-            -w,-h, -d, 0.0, 1.0, 0.0,
-            -w, h, -d, 0.0, 1.0, 0.0,);
+    AddQuad(-w, h, d,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+            -w,-h, d,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+            -w,-h, -d, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+            -w, h, -d, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0 );
 
     //back
-    AddQuad(-w, h, d, 0.0, 0.0, 1.0,
-             w, h, d, 0.0, 0.0, 1.0,
-             w,-h, d, 0.0, 0.0, 1.0,
-            -w,-h, d, 0.0, 0.0, 1.0,)
+    AddQuad(-w, h, d, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
+             w, h, d, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+             w,-h, d, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+            -w,-h, d, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 );
             
     //right
-    AddQuad( w, h, d, 1.0, 0.0, 1.0,
-             w, h,-d, 1.0, 0.0, 1.0,
-             w,-h,-d, 1.0, 0.0, 1.0,
-             w,-h, d, 1.0, 0.0, 1.0,)
+    AddQuad( w, h, d, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
+             w, h,-d, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+             w,-h,-d, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+             w,-h, d, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0 );
 
     //top
-    AddQuad( w, h, d, 0.0, 1.0, 1.0,
-            -w, h, d, 0.0, 1.0, 1.0,
-            -w, h,-d, 0.0, 1.0, 1.0,
-             w, h,-d, 0.0, 1.0, 1.0,)
+    AddQuad( w, h, d, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
+            -w, h, d, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+            -w, h,-d, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+             w, h,-d, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 );
     //borrom
-    AddQuad( w,-h, d, 1.0, 1.0, 1.0,
-             w,-h,-d, 1.0, 1.0, 1.0,
-            -w,-h,-d, 1.0, 1.0, 1.0,
-            -w,-h, d, 1.0, 1.0, 1.0,)       
+    AddQuad( w,-h, d, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+             w,-h,-d, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+            -w,-h,-d, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0,
+            -w,-h, d, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0 );       
     ;
 }
 
@@ -312,176 +345,139 @@ function CreateSubdividedBox (subdiv, width, height, depth)
     var startPointY = height * 0.5 * -1;
     var startPointD = depth * 0.5  * -1;
 
-
-    // makes front and back
-    for (let axis1 = 0; axis1 <  subdiv; axis1++)
+    for(let y = 0; y < subdiv; y++)
     {
-        for (let axis2 = 0; axis2 <  subdiv; axis2++ )
+        for(let x = 0; x < subdiv; x++)
         {
-            white = !white;
-            if (white) {wc = 1.0;}
-            else { wc = 0.0}
+            // Front
+            let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
+            AddQuad(startPointX + w * x,       startPointY + h * y,       -startPointD, c, c, c,  x / subdiv,        y    / subdiv, 0.0, 0.0, -1.0,    // 1
+                    startPointX + w * (x + 1), startPointY + h * y,       -startPointD, c, c, c, (x + 1) / subdiv,   y    / subdiv, 0.0, 0.0, -1.0,     // 4
+                    startPointX + w * (x + 1), startPointY + h * (y + 1), -startPointD, c, c, c, (x + 1) / subdiv,  (y+1) / subdiv, 0.0, 0.0, -1.0, // 3
+                    startPointX + w * x,       startPointY + h * (y + 1), -startPointD, c, c, c,  x / subdiv,       (y+1) / subdiv, 0.0, 0.0, -1.0  // 2
+           );
+            // Back
+            AddQuad(startPointX + w * x,       startPointY + h * y,       startPointD, c, c, c, -x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0,       // 1
+                    startPointX + w * x,       startPointY + h * (y + 1), startPointD, c, c, c, -x / subdiv,       (y+1) / subdiv   , 0.0, 0.0, -1.0,   // 4
+                    startPointX + w * (x + 1), startPointY + h * (y + 1), startPointD, c, c, c, -(x + 1) / subdiv, (y+1) / subdiv   , 0.0, 0.0, -1.0,   // 3
+                    startPointX + w * (x + 1), startPointY + h * y,       startPointD, c, c, c, -(x + 1) / subdiv, y / subdiv       , 0.0, 0.0, -1.0        // 2
+           );
+        }
+    }
+   
+    for(let y = 0; y < subdiv; y++)
+    {
+        for(let z = 0; z < subdiv; z++)
+        {
+             // Left
+            let c = (z + y) % 2 == 0 ? 1.0 : 0.0;
+            AddQuad(startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c,  z / subdiv,       y / subdiv   , 0.0, 0.0, -1.0, // 1
+                    startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv,  y / subdiv   , 0.0, 0.0, -1.0, //4
+                    startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv, (y+1) / subdiv, 0.0, 0.0, -1.0, // 3
+                    startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c,  z / subdiv,      (y+1) / subdiv, 0.0, 0.0, -1.0 // 2
+           );
 
-            var x1 = startPointX + axis2 * w;
-            var y1 = startPointY + axis1 * h;
-            var z1 = startPointD;
-    
-            var x2 = startPointX + (axis2 +1) * w; 
-            var y2 = startPointY + axis1 * h;
-            var z2 = startPointD;
-    
-            var x3 = startPointX + (axis2 +1) * w; 
-            var y3 = startPointY + (axis1 +1) * h;
-            var z3 = startPointD;
-    
-            var x4 = startPointX + axis2 * w; 
-            var y4 = startPointY + (axis1 +1) * h ;
-            var z4 = startPointD;
-    
-            /*AddQuad(x1, y1, z1, axis1 /subdiv, axis2 /subdiv,  1.0,
-                x2, y2, z2, axis1 /subdiv, axis2 /subdiv,  1.0,
-                x3, y3, z3, axis1 /subdiv, axis2 /subdiv,  1.0,
-                x4, y4, z4, axis1 /subdiv, axis2 /subdiv,  1.0);*/
-
-            AddQuad(x1, y1, z1, wc, wc, wc,
-                x2, y2, z2, wc, wc, wc,
-                x3, y3, z3, wc, wc, wc,
-                x4, y4, z4, wc, wc, wc);
-
-            var x4 = startPointX + axis2 * w;
-            var y4 = startPointY + axis1 * h;
-            var z4 = startPointD * -1;
-    
-            var x3 = startPointX + (axis2 +1) * w; 
-            var y3 = startPointY + axis1 * h;
-            var z3 = startPointD * -1;
-    
-            var x2 = startPointX + (axis2 +1) * w; 
-            var y2 = startPointY + (axis1 +1) * h;
-            var z2 = startPointD * -1;
-    
-            var x1 = startPointX + axis2 * w; 
-            var y1 = startPointY + (axis1 +1) * h ;
-            var z1 = startPointD * -1;
-    
-            AddQuad(x1, y1, z1, wc, wc, wc,
-                x2, y2, z2, wc, wc, wc,
-                x3, y3, z3, wc, wc, wc,
-                x4, y4, z4, wc, wc, wc);
+            // Right
+           AddQuad( -startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c, - z / subdiv,       y / subdiv     , 0.0, 0.0, -1.0, // 1
+                    -startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c, - z / subdiv,      (y+1) / subdiv  , 0.0, 0.0, -1.0, // 2
+                    -startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv, (y+1) / subdiv  , 0.0, 0.0, -1.0, // 3
+                    -startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv,  y / subdiv     , 0.0, 0.0, -1.0  //4
+          );
         }
     }
 
+    for(let y = 0; y < subdiv; y++)
+    {
+        for(let x = 0; x < subdiv; x++)
+        {
+            // Front
+            let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
+            AddQuad(startPointX + w * x,       startPointY + h * y,       -startPointD, c, c, c, x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0, // 1
+                    startPointX + w * (x + 1), startPointY + h * y,       -startPointD, c, c, c, (x + 1) / subdiv, y / subdiv       , 0.0, 0.0, -1.0, //4
+                    startPointX + w * (x + 1), startPointY + h * (y + 1), -startPointD, c, c, c, (x + 1) / subdiv, (y+1) / subdiv   , 0.0, 0.0, -1.0, // 3
+                    startPointX + w * x,       startPointY + h * (y + 1), -startPointD, c, c, c, x / subdiv,       (y+1) / subdiv   , 0.0, 0.0, -1.0   // 2
+        );
+            // Back
+            AddQuad(startPointX + w * x,       startPointY + h * y,       startPointD, c, c, c, x / subdiv,       y / subdiv        , 0.0, 0.0, -1.0,
+                    startPointX + w * x,       startPointY + h * (y + 1), startPointD, c, c, c, x / subdiv,       (y+1) / subdiv    , 0.0, 0.0, -1.0,
+                    startPointX + w * (x + 1), startPointY + h * (y + 1), startPointD, c, c, c, (x + 1) / subdiv, (y+1) / subdiv    , 0.0, 0.0, -1.0,
+                    startPointX + w * (x + 1), startPointY + h * y,       startPointD, c, c, c, (x + 1) / subdiv, y /   subdiv      , 0.0, 0.0, -1.0
+        );     
+        }
+    }
 
-
-        // makes right and left
-        for (let axis1 = 0; axis1 <  subdiv; axis1++)
-            {
-                for (let axis2 = 0; axis2 <  subdiv; axis2++ )
-                {
-                    white = !white;
-                    if (white) {wc = 1.0;}
-                    else { wc = 0.0}
-
-                    var x1 = startPointX * -1 ;
-                    var y1 = startPointY + axis1 * h;
-                    var z1 = startPointD + axis2 * w;
-            
-                    var x2 = startPointX * -1 ; 
-                    var y2 = startPointY + axis1 * h;
-                    var z2 = startPointD + (axis2 +1) * w;
-            
-                    var x3 = startPointX * -1 ; 
-                    var y3 = startPointY + (axis1 +1) * h;
-                    var z3 = startPointD + (axis2 +1) * w;
-            
-                    var x4 = startPointX * -1 ; 
-                    var y4 = startPointY + (axis1 +1) * h ;
-                    var z4 = startPointD + axis2 * w;
-            
-                    AddQuad(x1, y1, z1, wc, wc, wc,
-                        x2, y2, z2, wc, wc, wc,
-                        x3, y3, z3, wc, wc, wc,
-                        x4, y4, z4, wc, wc, wc);
-
-                    var x4 = startPointX;
-                    var y4 = startPointY + axis1 * h;
-                    var z4 = startPointD + axis2 * w;
-            
-                    var x3 = startPointX; 
-                    var y3 = startPointY + axis1 * h;
-                    var z3 = startPointD + (axis2 +1) * w;
-            
-                    var x2 = startPointX; 
-                    var y2 = startPointY + (axis1 +1) * h;
-                    var z2 = startPointD + (axis2 +1) * w;
-            
-                    var x1 = startPointX; 
-                    var y1 = startPointY + (axis1 +1) * h ;
-                    var z1 = startPointD + axis2 * w;
-            
-                    AddQuad(x1, y1, z1, wc, wc, wc,
-                        x2, y2, z2, wc, wc, wc,
-                        x3, y3, z3, wc, wc, wc,
-                        x4, y4, z4, wc, wc, wc);
-                }
-            }
-
-        // makes top and bottom
-        for (let axis1 = 0; axis1 <  subdiv; axis1++)
-            {
-                for (let axis2 = 0; axis2 <  subdiv; axis2++ )
-                {
-        
-                    white = !white;
-                    if (white) {wc = 0.0;}
-                    else { wc = 1.0}
-                    
-                    var x1 = startPointX + axis2 * w;
-                    var y1 = startPointY * -1;
-                    var z1 = startPointD + axis1 * d;
-            
-                    var x2 = startPointX + (axis2 +1) * w; 
-                    var y2 = startPointY * -1;
-                    var z2 = startPointD + axis1 * d;
-            
-                    var x3 = startPointX + (axis2 +1) * w; 
-                    var y3 = startPointY * -1;
-                    var z3 = startPointD + (axis1 +1) * d;
-            
-                    var x4 = startPointX + axis2 * w; 
-                    var y4 = startPointY * -1;
-                    var z4 = startPointD + (axis1 +1) * d;
-            
-                    AddQuad(x1, y1, z1, wc, wc, wc,
-                        x2, y2, z2, wc, wc, wc,
-                        x3, y3, z3, wc, wc, wc,
-                        x4, y4, z4, wc, wc, wc);
-        
-                    var x4 = startPointX + axis2 * w;
-                    var y4 = startPointY;
-                    var z4 = startPointD + axis1 * d;
-            
-                    var x3 = startPointX + (axis2 +1) * w; 
-                    var y3 = startPointY;
-                    var z3 = startPointD + axis1 * d;
-            
-                    var x2 = startPointX + (axis2 +1) * w; 
-                    var y2 = startPointY;
-                    var z2 = startPointD + (axis1 +1) * d;
-            
-                    var x1 = startPointX + axis2 * w; 
-                    var y1 = startPointY;
-                    var z1 = startPointD + (axis1 +1) * d;
-            
-                    AddQuad(x1, y1, z1, wc, wc, wc,
-                        x2, y2, z2, wc, wc, wc,
-                        x3, y3, z3, wc, wc, wc,
-                        x4, y4, z4, wc, wc, wc);
-                }
-            }
-
+    for(let y = 0; y < subdiv; y++)
+    {
+        for(let x = 0; x < subdiv; x++)
+        {
+            // bottom
+            let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
+            AddQuad(startPointX + w * x,       startPointY , startPointD + h * y,       c, c, c, x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0, // 1
+                    startPointX + w * (x + 1), startPointY , startPointD + h * y,       c, c, c, (x + 1) / subdiv, y / subdiv       , 0.0, 0.0, -1.0, //4
+                    startPointX + w * (x + 1), startPointY , startPointD + h * (y + 1), c, c, c, (x + 1) / subdiv, (y+1) / subdiv   , 0.0, 0.0, -1.0, // 3
+                    startPointX + w * x,       startPointY , startPointD + h * (y + 1), c, c, c, x / subdiv,       (y+1) / subdiv   , 0.0, 0.0, -1.0 // 2
+            );
+            // top
+            AddQuad(startPointX + w * x,       -startPointY , startPointD + h * y,       c, c, c, -x / subdiv,       y / subdiv      , 0.0, 0.0, -1.0, // 1
+                    startPointX + w * x,       -startPointY , startPointD + h * (y + 1), c, c, c, -x / subdiv,       (y+1) / subdiv  , 0.0, 0.0, -1.0, // 2
+                    startPointX + w * (x + 1), -startPointY , startPointD + h * (y + 1), c, c, c, -(x + 1) / subdiv, (y+1) / subdiv  , 0.0, 0.0, -1.0, // 3
+                    startPointX + w * (x + 1), -startPointY , startPointD + h * y,       c, c, c, -(x + 1) / subdiv, y / subdiv      , 0.0, 0.0, -1.0//4
+            );
+        }
+    }
 }
 
+
+
+function CreateCylinder (radius, height, subdiv)
+{
+    vertices.length = 0;
+    const h = (height * 0.5) /2;
+    radius = radius /2 ;
+
+
+    var radian = Math.PI / 180;
+    for (let i = 0; i < subdiv; i++) {
+        
+        let angleOfSub = 360/subdiv
+
+        let cornerLeftX = radius * Math.cos(radian * angleOfSub * i);
+        let cornerLeftY = radius *  Math.sin(radian * angleOfSub * i);
+        let cornerRightX = radius * Math.cos(radian * angleOfSub * (i+1))
+        let cornerRightY = radius *  Math.sin(radian * angleOfSub * (i+1))
+
+        // top part
+        AddVertex (cornerRightX  , h, cornerRightY,  1.0, 1.0, 1.0, cornerRightX, cornerRightY, 0.0, 0.0, -1.0);
+        AddVertex (cornerLeftX       , h, cornerLeftY,  1.0, 1.0, 1.0, cornerLeftX, cornerLeftY, 0.0, 0.0, -1.0);
+        AddVertex (0.0                                              , h, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+    
+        let normalDirx = Math.cos(radian * (angleOfSub * i - (angleOfSub * 0.5)));
+        let normalDiry = Math.sin(radian * (angleOfSub * i - (angleOfSub * 0.5)));
+        
+        
+
+
+
+        
+        AddVertex ( cornerLeftX    , h, cornerLeftY  ,  1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0);
+        AddVertex ( cornerRightX   , h, cornerRightY ,  1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0);
+        AddVertex ( cornerRightX   ,-h, cornerRightY ,  1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+        AddVertex ( cornerLeftX    , h, cornerLeftY  ,  1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0);
+        AddVertex ( cornerRightX   ,-h, cornerRightY ,  1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+        AddVertex ( cornerLeftX    ,-h, cornerLeftY  ,  1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0);
+
+        
+        // botom part
+
+        AddVertex (0.0                                              ,-h, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+        AddVertex (cornerLeftX      ,-h, cornerLeftY    ,  1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+        AddVertex (cornerRightX  ,-h, cornerRightY ,  1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0);
+    
+    
+    
+    }
+
+}
 
 
 
@@ -490,6 +486,8 @@ function CreateSubdividedBox (subdiv, width, height, depth)
 var mouseX = 0, mouseY = 0;
 var angle = [ 0.0, 0.0, 0.0, 1.0 ];
 var angleGL= 0;
+
+
 
 document.getElementById('gl')
 .addEventListener('mousemove', function(e) 
@@ -505,6 +503,25 @@ document.getElementById('gl')
             }
         mouseX = e.x;
         mouseY= e.y;
+
+       // let coX = Math.cos(angle.x);
+       // let siX = Math.sin(angle.x);
+       // matX = mat4(vec4(1.0, 0.0, 0.0, 0.0),
+       //                  vec4(0.0, coX, siX, 0.0),
+       //                  vec4(0.0,-siX, coX, 0.0),
+       //                  vec4(0.0, 0.0, 0.0, 1.0)
+       //                  );
+       // let coY = cos(Angle.y);
+       // let siY = sin(Angle.y);
+       // matY = mat4(vec4(coY, 0.0,-siY, 0.0),
+       //                 vec4(0.0, 1.0, 0.0, 0.0),
+       //                 vec4(siY, 0.0, coY, 0.0),
+       //                 vec4(0.0, 0.0, 0.0, 1.0));
+
+
+
+
+
     }
 );
 
@@ -514,7 +531,18 @@ function Render()
 {
     gl.clearColor(0.0, 0.4, 0.6, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0,vertices.length / 6);
+
+    const zoom  = document.getElementById('zoom').value;
+    modelView[14] = -zoom;
+
+    // perspective projection
+    const fov  = document.getElementById('fov').value;
+    const aspect = gl.canvas.width / gl.canvas.height;
+    Perspective(fov, aspect, 1.0, 2000.0, projection);
+
+    gl.drawArrays(gl.TRIANGLES, 0,vertices.length / 11);
+
+
 }
 
 
@@ -533,12 +561,15 @@ function CreateGeometryUI()
     'Width: <input type="number" id="w" value="'
     + w 
     +'" onchange= "InitShaders();"><br>'
+    
     +'Height: <input type="number" id="h" value="'
     + h 
     +'" onchange= "InitShaders();"><br>'
+
     +'Depth: <input type="number" id="d" value="'
     + d 
     +'" onchange= "InitShaders();">'
+
     +'Subdivide: <input type="number" id="sub" value="'
     + s
     +'" onchange= "InitShaders();">';
@@ -558,10 +589,17 @@ function CreateGeometryUI()
         case 2: 
             CreateBox(w, h, d); 
             break;
+
         case 3:
             CreateSubdividedBox(s,w,h,d);
             break;
+
+        case 4:
+            CreateCylinder(w,h,s);
+            break;
         }
+
+
     }
 
 function CreateGeometryBuffers(program)
@@ -574,6 +612,12 @@ function CreateGeometryBuffers(program)
 
     // uniform shader inform
     angleGL= gl.getUniformLocation(program, 'Angle');
+    proGL = gl.getUniformLocation(program, 'Projection');
+    modGL = gl.getUniformLocation(program, 'ModelView');
+
+    //matX = gl.getUniformLocation(program, matX);
+    //matY = gl.getUniformLocation(program, matY);
+
     //CreateTexture(program, 'images/tekstur.jpg')
     CreateTexture(program, 'images/testtex.jpg')
 
@@ -649,7 +693,36 @@ function Update()
     const t = document.getElementById('t');
     display[3] = t.checked? 1.0 : 0.0;
 
+    //light color *hex to rgb
+    const l = document.getElementById('l').value;
+    display[0] = parseInt(l.substring(1,3),16) / 255.0;
+    display[1] = parseInt(l.substring(3,5),16) / 255.0;
+    display[2] = parseInt(l.substring(5,7),16) / 255.0;
+
+    
+
     // Update array to graphics card and render 
     gl.uniform4fv(displayGL, new Float32Array(display));
     Render();
 }
+
+
+function Perspective (fovy, aspect, near, far, matrix) {
+    // fill array with zero;
+    matrix.fill(0);
+    // focal lenght;
+    const f = Math.tan(fovy * Math.PI / 360.0);
+
+    // setup matrix
+    matrix[0] = f / aspect;
+    matrix[5] = f;
+    matrix[10] = (far + near)   / (near - far);
+    matrix[11] = (2 * far *near)/ (near - far);
+    matrix[14] = -1;
+
+    gl.uniformMatrix4fv(proGL, false, new Float32Array(projection));
+    gl.uniformMatrix4fv(modGL, false, new Float32Array(modelView));
+
+}
+
+
