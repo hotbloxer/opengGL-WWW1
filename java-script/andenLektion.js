@@ -290,40 +290,41 @@ function CreateBox(width, height, depth)
     const d = depth * 0.5;
 
     //front
-    AddQuad(-w, h, -d, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-            -w,-h, -d, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-             w,-h, -d, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
-             w, h, -d, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0 ); 
+    AddQuad(-w, h, d, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            -w,-h, d, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+             w,-h, d, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+             w, h, d, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0 ); 
 
-    //left
-    AddQuad(-w, h, d,  0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-            -w,-h, d,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-            -w,-h, -d, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0,
-            -w, h, -d, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0 );
 
     //back
-    AddQuad(-w, h, d, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
-             w, h, d, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-             w,-h, d, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-            -w,-h, d, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 );
+    AddQuad(-w, h, -d, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
+             w, h, -d, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
+             w,-h, -d, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
+            -w,-h, -d, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 );
             
+    //left
+    AddQuad(w, h, d,  0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0,
+            w,-h, d,  0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            w,-h, -d, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+            w, h, -d, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0 );
+
+
     //right
-    AddQuad( w, h, d, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
-             w, h,-d, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-             w,-h,-d, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-             w,-h, d, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0 );
+    AddQuad( -w, h, d, 1.0, 0.0, 1.0, 1.0, 1.0, -1.0, 0.0, 0.0,
+             -w, h,-d, 1.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.0, 0.0,
+             -w,-h,-d, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+             -w,-h, d, 1.0, 0.0, 1.0, 0.0, 1.0, -1.0, 0.0, 0.0 );
 
     //top
-    AddQuad( w, h, d, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0,
-            -w, h, d, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-            -w, h,-d, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-             w, h,-d, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 );
+    AddQuad( w, -h, d, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0, 0.0,
+            -w, -h, d, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
+            -w, -h,-d, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0,
+             w, -h,-d, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0, 0.0 );
     //borrom
-    AddQuad( w,-h, d, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, -1.0,
-             w,-h,-d, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0,
-            -w,-h,-d, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, -1.0,
-            -w,-h, d, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, -1.0 );       
-    ;
+    AddQuad( w, h, d, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0,
+             w, h,-d, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+            -w, h,-d, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+            -w, h, d, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0 );       
 }
 
 
@@ -351,10 +352,10 @@ function CreateSubdividedBox (subdiv, width, height, depth)
         {
             // Front
             let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
-            AddQuad(startPointX + w * x,       startPointY + h * y,       -startPointD, c, c, c,  x / subdiv,        y    / subdiv, 0.0, 0.0, -1.0,    // 1
-                    startPointX + w * (x + 1), startPointY + h * y,       -startPointD, c, c, c, (x + 1) / subdiv,   y    / subdiv, 0.0, 0.0, -1.0,     // 4
-                    startPointX + w * (x + 1), startPointY + h * (y + 1), -startPointD, c, c, c, (x + 1) / subdiv,  (y+1) / subdiv, 0.0, 0.0, -1.0, // 3
-                    startPointX + w * x,       startPointY + h * (y + 1), -startPointD, c, c, c,  x / subdiv,       (y+1) / subdiv, 0.0, 0.0, -1.0  // 2
+            AddQuad(startPointX + w * x,       startPointY + h * y,       -startPointD, c, c, c,  x / subdiv,        y    / subdiv, 0.0, 0.0, 1.0,    // 1
+                    startPointX + w * (x + 1), startPointY + h * y,       -startPointD, c, c, c, (x + 1) / subdiv,   y    / subdiv, 0.0, 0.0, 1.0,     // 4
+                    startPointX + w * (x + 1), startPointY + h * (y + 1), -startPointD, c, c, c, (x + 1) / subdiv,  (y+1) / subdiv, 0.0, 0.0, 1.0, // 3
+                    startPointX + w * x,       startPointY + h * (y + 1), -startPointD, c, c, c,  x / subdiv,       (y+1) / subdiv, 0.0, 0.0, 1.0  // 2
            );
             // Back
             AddQuad(startPointX + w * x,       startPointY + h * y,       startPointD, c, c, c, -x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0,       // 1
@@ -371,40 +372,21 @@ function CreateSubdividedBox (subdiv, width, height, depth)
         {
              // Left
             let c = (z + y) % 2 == 0 ? 1.0 : 0.0;
-            AddQuad(startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c,  z / subdiv,       y / subdiv   , 0.0, 0.0, -1.0, // 1
-                    startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv,  y / subdiv   , 0.0, 0.0, -1.0, //4
-                    startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv, (y+1) / subdiv, 0.0, 0.0, -1.0, // 3
-                    startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c,  z / subdiv,      (y+1) / subdiv, 0.0, 0.0, -1.0 // 2
+            AddQuad(startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c,  z / subdiv,       y / subdiv   , -1.0, 0.0, 0.0, // 1
+                    startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv,  y / subdiv   , -1.0, 0.0, 0.0, //4
+                    startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, (z + 1) / subdiv, (y+1) / subdiv, -1.0, 0.0, 0.0, // 3
+                    startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c,  z / subdiv,      (y+1) / subdiv, -1.0, 0.0, 0.0 // 2
            );
 
             // Right
-           AddQuad( -startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c, - z / subdiv,       y / subdiv     , 0.0, 0.0, -1.0, // 1
-                    -startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c, - z / subdiv,      (y+1) / subdiv  , 0.0, 0.0, -1.0, // 2
-                    -startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv, (y+1) / subdiv  , 0.0, 0.0, -1.0, // 3
-                    -startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv,  y / subdiv     , 0.0, 0.0, -1.0  //4
+           AddQuad( -startPointX, startPointY + h * y,       startPointD + d *  z,      c, c, c, - z / subdiv,       y / subdiv     , 1.0, 0.0, 0.0, // 1
+                    -startPointX, startPointY + h * (y + 1), startPointD + d *  z,      c, c, c, - z / subdiv,      (y+1) / subdiv  , 1.0, 0.0, 0.0, // 2
+                    -startPointX, startPointY + h * (y + 1), startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv, (y+1) / subdiv  , 1.0, 0.0, 0.0, // 3
+                    -startPointX, startPointY + h * y,       startPointD + d * (z + 1), c, c, c, -(z + 1) / subdiv,  y / subdiv     , 1.0, 0.0, 0.0  //4
           );
         }
     }
 
-    for(let y = 0; y < subdiv; y++)
-    {
-        for(let x = 0; x < subdiv; x++)
-        {
-            // Front
-            let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
-            AddQuad(startPointX + w * x,       startPointY + h * y,       -startPointD, c, c, c, x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0, // 1
-                    startPointX + w * (x + 1), startPointY + h * y,       -startPointD, c, c, c, (x + 1) / subdiv, y / subdiv       , 0.0, 0.0, -1.0, //4
-                    startPointX + w * (x + 1), startPointY + h * (y + 1), -startPointD, c, c, c, (x + 1) / subdiv, (y+1) / subdiv   , 0.0, 0.0, -1.0, // 3
-                    startPointX + w * x,       startPointY + h * (y + 1), -startPointD, c, c, c, x / subdiv,       (y+1) / subdiv   , 0.0, 0.0, -1.0   // 2
-        );
-            // Back
-            AddQuad(startPointX + w * x,       startPointY + h * y,       startPointD, c, c, c, x / subdiv,       y / subdiv        , 0.0, 0.0, -1.0,
-                    startPointX + w * x,       startPointY + h * (y + 1), startPointD, c, c, c, x / subdiv,       (y+1) / subdiv    , 0.0, 0.0, -1.0,
-                    startPointX + w * (x + 1), startPointY + h * (y + 1), startPointD, c, c, c, (x + 1) / subdiv, (y+1) / subdiv    , 0.0, 0.0, -1.0,
-                    startPointX + w * (x + 1), startPointY + h * y,       startPointD, c, c, c, (x + 1) / subdiv, y /   subdiv      , 0.0, 0.0, -1.0
-        );     
-        }
-    }
 
     for(let y = 0; y < subdiv; y++)
     {
@@ -412,16 +394,16 @@ function CreateSubdividedBox (subdiv, width, height, depth)
         {
             // bottom
             let c = (x + y) % 2 == 0 ? 1.0 : 0.0;
-            AddQuad(startPointX + w * x,       startPointY , startPointD + h * y,       c, c, c, x / subdiv,       y / subdiv       , 0.0, 0.0, -1.0, // 1
-                    startPointX + w * (x + 1), startPointY , startPointD + h * y,       c, c, c, (x + 1) / subdiv, y / subdiv       , 0.0, 0.0, -1.0, //4
-                    startPointX + w * (x + 1), startPointY , startPointD + h * (y + 1), c, c, c, (x + 1) / subdiv, (y+1) / subdiv   , 0.0, 0.0, -1.0, // 3
-                    startPointX + w * x,       startPointY , startPointD + h * (y + 1), c, c, c, x / subdiv,       (y+1) / subdiv   , 0.0, 0.0, -1.0 // 2
+            AddQuad(startPointX + w * x,       startPointY , startPointD + h * y,       c, c, c, x / subdiv,       y / subdiv       , 0.0, -1.0, 0.0, // 1
+                    startPointX + w * (x + 1), startPointY , startPointD + h * y,       c, c, c, (x + 1) / subdiv, y / subdiv       , 0.0, -1.0, 0.0, //4
+                    startPointX + w * (x + 1), startPointY , startPointD + h * (y + 1), c, c, c, (x + 1) / subdiv, (y+1) / subdiv   , 0.0, -1.0, 0.0, // 3
+                    startPointX + w * x,       startPointY , startPointD + h * (y + 1), c, c, c, x / subdiv,       (y+1) / subdiv   , 0.0, -1.0, 0.0 // 2
             );
             // top
-            AddQuad(startPointX + w * x,       -startPointY , startPointD + h * y,       c, c, c, -x / subdiv,       y / subdiv      , 0.0, 0.0, -1.0, // 1
-                    startPointX + w * x,       -startPointY , startPointD + h * (y + 1), c, c, c, -x / subdiv,       (y+1) / subdiv  , 0.0, 0.0, -1.0, // 2
-                    startPointX + w * (x + 1), -startPointY , startPointD + h * (y + 1), c, c, c, -(x + 1) / subdiv, (y+1) / subdiv  , 0.0, 0.0, -1.0, // 3
-                    startPointX + w * (x + 1), -startPointY , startPointD + h * y,       c, c, c, -(x + 1) / subdiv, y / subdiv      , 0.0, 0.0, -1.0//4
+            AddQuad(startPointX + w * x,       -startPointY , startPointD + h * y,       c, c, c, -x / subdiv,       y / subdiv      , 0.0, 1.0, 0.0, // 1
+                    startPointX + w * x,       -startPointY , startPointD + h * (y + 1), c, c, c, -x / subdiv,       (y+1) / subdiv  , 0.0, 1.0, 0.0, // 2
+                    startPointX + w * (x + 1), -startPointY , startPointD + h * (y + 1), c, c, c, -(x + 1) / subdiv, (y+1) / subdiv  , 0.0, 1.0, 0.0, // 3
+                    startPointX + w * (x + 1), -startPointY , startPointD + h * y,       c, c, c, -(x + 1) / subdiv, y / subdiv      , 0.0, 1.0, 0.0//4
             );
         }
     }
@@ -587,11 +569,12 @@ function CreateGeometryUI()
             break;
 
         case 2: 
-            CreateBox(w, h, d); 
+            CreateSubdividedBox(s,w,h,d);
+            
             break;
 
         case 3:
-            CreateSubdividedBox(s,w,h,d);
+            CreateBox(w, h, d); 
             break;
 
         case 4:

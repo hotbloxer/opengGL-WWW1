@@ -53,14 +53,41 @@
                     vec4( 0.0, 0.0, 1.0, 0.0),
                     vec4( 0.0, 0.0, 0.0, 1.0));
 
-                vec4 v = bend * vec4(Pos, 1.0);
+                mat4 noThing = mat4(
+                    vec4( 1.0, 0.0, 0.0, 0.0),
+                    vec4( 0.0, 1.0, 0.0, 0.0),
+                    vec4( 0.0, 0.0, 1.0, 0.0),
+                    vec4( 0.0, 0.0, 0.0, 1.0));
+
                 
+                float tcoY = cos(Pos.y);
+                float tsiY = sin(Pos.y);
+                mat4 twist = mat4(
+                    vec4( tcoY   , 0.0  , tsiY , 0.0),
+                    vec4( 0.0    , 1.0  , 0.0  , 0.0),
+                    vec4( -tsiY  , 0.0  , tcoY , 0.0),
+                    vec4( 0.0    , 0.0  , 0.0  , 1.0));
+
+                mat4 translation = mat4(
+                    vec4( 1.0, 0.0, 0.0, 0.0),
+                    vec4( 0.0, 1.0, 0.0, 0.0),
+                    vec4( 0.0, 0.0, 1.0, 0.0),
+                    vec4( 1.0, 1.0, 1.0, 1.0));
+
+                 mat4 shear = mat4(
+                    vec4( 1.0, 0.0, 0.0 , 0.0),
+                    vec4( Pos.x, 1.0, Pos.z, 0.0),
+                    vec4( 0.0, 0.0, 1.0, 0.0),
+                    vec4( 0.0, 0.0, 0.0, 1.0));
+
+         
+                vec4 v = shear  * vec4(Pos, 1.0);
                 
 
                 gl_Position = Projection * ModelView * matX * matY * v;
                 vertexColor = Color;
                 uv = UV;
-                normal = Normal;
+                normal = mat3(matX * matY) * Normal;
                
             } 
         
@@ -78,7 +105,7 @@
             void main() 
             {
                 
-                vec3 lightDirection = vec3(0.0, 0.0, -1.0);
+                vec3 lightDirection = vec3(0.0, 0.0, 1.0);
                 float lambert = dot(lightDirection, normal);
                 vec3 shade = Display.rgb * lambert;
                 
@@ -101,9 +128,9 @@
         <select id="shape" onchange="InitShaders();">
             <option>Quad</option>
             <option >Triangle</option>
-            <option>SubBox</option>
-            <option>Box</option>
-            <option selected>Cylinder</option>
+            <option selected>SubBox</option>
+            <option >Box</option>
+            <option >Cylinder</option>
 
         </select>
         <input type="number" id="fov" value = 90 onchange="Render();"> FOV <br> <input type = "number" id = "zoom" value = "1.2" onchange="Render();"> Zoom <br>
