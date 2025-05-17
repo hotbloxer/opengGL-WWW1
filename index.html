@@ -81,7 +81,7 @@
                     vec4( 0.0, 0.0, 0.0, 1.0));
 
          
-                vec4 v = shear  * vec4(Pos, 1.0);
+                vec4 v = twist * translation * vec4(Pos, 1.0);
                 
 
                 gl_Position = Projection * ModelView * matX * matY * v;
